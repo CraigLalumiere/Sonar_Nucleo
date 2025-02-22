@@ -57,10 +57,30 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define FW_LED_Pin           GPIO_PIN_5
-#define FW_LED_GPIO_Port     GPIOA
-#define DEBUG_GPIO_Pin       GPIO_PIN_6
-#define DEBUG_GPIO_GPIO_Port GPIOB
+#define GainSel0_Pin             GPIO_PIN_0
+#define GainSel0_GPIO_Port       GPIOC
+#define GainSel1_Pin             GPIO_PIN_1
+#define GainSel1_GPIO_Port       GPIOC
+#define GainSel2_Pin             GPIO_PIN_2
+#define GainSel2_GPIO_Port       GPIOC
+#define XDCR_RX_Pin              GPIO_PIN_0
+#define XDCR_RX_GPIO_Port        GPIOA
+#define XDCR_RX_AC_Pin           GPIO_PIN_1
+#define XDCR_RX_AC_GPIO_Port     GPIOA
+#define FW_LED_Pin               GPIO_PIN_5
+#define FW_LED_GPIO_Port         GPIOA
+#define XDCR_PWR_SENSE_Pin       GPIO_PIN_6
+#define XDCR_PWR_SENSE_GPIO_Port GPIOA
+#define WATER_TEMP_Pin           GPIO_PIN_5
+#define WATER_TEMP_GPIO_Port     GPIOC
+#define XRDC_RX_AMP_Pin          GPIO_PIN_11
+#define XRDC_RX_AMP_GPIO_Port    GPIOB
+#define FW_LEDC10_Pin            GPIO_PIN_10
+#define FW_LEDC10_GPIO_Port      GPIOC
+#define XDCR_PWR_EN_Pin          GPIO_PIN_11
+#define XDCR_PWR_EN_GPIO_Port    GPIOC
+#define DEBUG_GPIO_Pin           GPIO_PIN_6
+#define DEBUG_GPIO_GPIO_Port     GPIOB
 
 /* USER CODE BEGIN Private defines */
 

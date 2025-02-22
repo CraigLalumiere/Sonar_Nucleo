@@ -90,7 +90,14 @@ typedef struct
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
+
+DAC_HandleTypeDef hdac3;
+
 UART_HandleTypeDef hlpuart1;
+
+OPAMP_HandleTypeDef hopamp6;
 
 /* USER CODE BEGIN PV */
 
@@ -100,6 +107,10 @@ UART_HandleTypeDef hlpuart1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_LPUART1_UART_Init(void);
+static void MX_ADC1_Init(void);
+static void MX_ADC2_Init(void);
+static void MX_DAC3_Init(void);
+static void MX_OPAMP6_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -142,6 +153,10 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_LPUART1_UART_Init();
+    MX_ADC1_Init();
+    MX_ADC2_Init();
+    MX_DAC3_Init();
+    MX_OPAMP6_Init();
     /* USER CODE BEGIN 2 */
 
     uint16_t priority = QF_AWARE_ISR_CMSIS_PRI;
@@ -268,6 +283,183 @@ void SystemClock_Config(void)
 }
 
 /**
+ * @brief ADC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_ADC1_Init(void)
+{
+    /* USER CODE BEGIN ADC1_Init 0 */
+
+    /* USER CODE END ADC1_Init 0 */
+
+    ADC_MultiModeTypeDef multimode = {0};
+    ADC_ChannelConfTypeDef sConfig = {0};
+
+    /* USER CODE BEGIN ADC1_Init 1 */
+
+    /* USER CODE END ADC1_Init 1 */
+
+    /** Common config
+     */
+    hadc1.Instance                   = ADC1;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+    hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
+    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.GainCompensation      = 0;
+    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.LowPowerAutoWait      = DISABLE;
+    hadc1.Init.ContinuousConvMode    = DISABLE;
+    hadc1.Init.NbrOfConversion       = 1;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
+    hadc1.Init.OversamplingMode      = DISABLE;
+    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure the ADC multi-mode
+     */
+    multimode.Mode = ADC_MODE_INDEPENDENT;
+    if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel      = ADC_CHANNEL_1;
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN ADC1_Init 2 */
+
+    /* USER CODE END ADC1_Init 2 */
+}
+
+/**
+ * @brief ADC2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_ADC2_Init(void)
+{
+    /* USER CODE BEGIN ADC2_Init 0 */
+
+    /* USER CODE END ADC2_Init 0 */
+
+    ADC_ChannelConfTypeDef sConfig = {0};
+
+    /* USER CODE BEGIN ADC2_Init 1 */
+
+    /* USER CODE END ADC2_Init 1 */
+
+    /** Common config
+     */
+    hadc2.Instance                   = ADC2;
+    hadc2.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+    hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
+    hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc2.Init.GainCompensation      = 0;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_ENABLE;
+    hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc2.Init.LowPowerAutoWait      = DISABLE;
+    hadc2.Init.ContinuousConvMode    = DISABLE;
+    hadc2.Init.NbrOfConversion       = 2;
+    hadc2.Init.DiscontinuousConvMode = DISABLE;
+    hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    hadc2.Init.OversamplingMode      = DISABLE;
+    if (HAL_ADC_Init(&hadc2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel      = ADC_CHANNEL_3;
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
+    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_11;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN ADC2_Init 2 */
+
+    /* USER CODE END ADC2_Init 2 */
+}
+
+/**
+ * @brief DAC3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_DAC3_Init(void)
+{
+    /* USER CODE BEGIN DAC3_Init 0 */
+
+    /* USER CODE END DAC3_Init 0 */
+
+    DAC_ChannelConfTypeDef sConfig = {0};
+
+    /* USER CODE BEGIN DAC3_Init 1 */
+
+    /* USER CODE END DAC3_Init 1 */
+
+    /** DAC Initialization
+     */
+    hdac3.Instance = DAC3;
+    if (HAL_DAC_Init(&hdac3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** DAC channel OUT1 config
+     */
+    sConfig.DAC_HighFrequency           = DAC_HIGH_FREQUENCY_INTERFACE_MODE_AUTOMATIC;
+    sConfig.DAC_DMADoubleDataMode       = DISABLE;
+    sConfig.DAC_SignedFormat            = DISABLE;
+    sConfig.DAC_SampleAndHold           = DAC_SAMPLEANDHOLD_DISABLE;
+    sConfig.DAC_Trigger                 = DAC_TRIGGER_NONE;
+    sConfig.DAC_Trigger2                = DAC_TRIGGER_NONE;
+    sConfig.DAC_OutputBuffer            = DAC_OUTPUTBUFFER_DISABLE;
+    sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_INTERNAL;
+    sConfig.DAC_UserTrimming            = DAC_TRIMMING_FACTORY;
+    if (HAL_DAC_ConfigChannel(&hdac3, &sConfig, DAC_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN DAC3_Init 2 */
+
+    /* USER CODE END DAC3_Init 2 */
+}
+
+/**
  * @brief LPUART1 Initialization Function
  * @param None
  * @retval None
@@ -313,6 +505,38 @@ static void MX_LPUART1_UART_Init(void)
 }
 
 /**
+ * @brief OPAMP6 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_OPAMP6_Init(void)
+{
+    /* USER CODE BEGIN OPAMP6_Init 0 */
+
+    /* USER CODE END OPAMP6_Init 0 */
+
+    /* USER CODE BEGIN OPAMP6_Init 1 */
+
+    /* USER CODE END OPAMP6_Init 1 */
+    hopamp6.Instance                    = OPAMP6;
+    hopamp6.Init.PowerMode              = OPAMP_POWERMODE_NORMALSPEED;
+    hopamp6.Init.Mode                   = OPAMP_PGA_MODE;
+    hopamp6.Init.NonInvertingInput      = OPAMP_NONINVERTINGINPUT_DAC;
+    hopamp6.Init.InternalOutput         = DISABLE;
+    hopamp6.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
+    hopamp6.Init.PgaConnect             = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0;
+    hopamp6.Init.PgaGain                = OPAMP_PGA_GAIN_2_OR_MINUS_1;
+    hopamp6.Init.UserTrimming           = OPAMP_TRIMMING_FACTORY;
+    if (HAL_OPAMP_Init(&hopamp6) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN OPAMP6_Init 2 */
+
+    /* USER CODE END OPAMP6_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -324,14 +548,30 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOC,
+        GainSel0_Pin | GainSel1_Pin | GainSel2_Pin | FW_LEDC10_Pin | XDCR_PWR_EN_Pin,
+        GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pins : GainSel0_Pin GainSel1_Pin GainSel2_Pin FW_LEDC10_Pin
+                             XDCR_PWR_EN_Pin */
+    GPIO_InitStruct.Pin = GainSel0_Pin | GainSel1_Pin | GainSel2_Pin | FW_LEDC10_Pin |
+        XDCR_PWR_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pin : FW_LED_Pin */
     GPIO_InitStruct.Pin   = FW_LED_Pin;

@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+extern DMA_HandleTypeDef hdma_adc2;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -175,6 +176,24 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(WATER_TEMP_GPIO_Port, &GPIO_InitStruct);
 
+    /* ADC2 DMA Init */
+    /* ADC2 Init */
+    hdma_adc2.Instance = DMA1_Channel1;
+    hdma_adc2.Init.Request = DMA_REQUEST_ADC2;
+    hdma_adc2.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc2.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc2.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_adc2.Init.Mode = DMA_NORMAL;
+    hdma_adc2.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(hadc,DMA_Handle,hdma_adc2);
+
     /* ADC2 interrupt Init */
     HAL_NVIC_SetPriority(ADC1_2_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
@@ -240,6 +259,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     HAL_GPIO_DeInit(XDCR_PWR_SENSE_GPIO_Port, XDCR_PWR_SENSE_Pin);
 
     HAL_GPIO_DeInit(WATER_TEMP_GPIO_Port, WATER_TEMP_Pin);
+
+    /* ADC2 DMA DeInit */
+    HAL_DMA_DeInit(hadc->DMA_Handle);
 
     /* ADC2 interrupt DeInit */
   /* USER CODE BEGIN ADC2:ADC1_2_IRQn disable */

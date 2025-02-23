@@ -93,6 +93,7 @@ typedef struct
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc2;
 
 DAC_HandleTypeDef hdac3;
 
@@ -107,6 +108,7 @@ OPAMP_HandleTypeDef hopamp6;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
@@ -153,6 +155,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_LPUART1_UART_Init();
     MX_ADC1_Init();
     MX_ADC2_Init();
@@ -381,7 +384,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.DiscontinuousConvMode = DISABLE;
     hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.DMAContinuousRequests = ENABLE;
     hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
     hadc2.Init.OversamplingMode      = DISABLE;
     if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -535,6 +538,16 @@ static void MX_OPAMP6_Init(void)
     /* USER CODE BEGIN OPAMP6_Init 2 */
 
     /* USER CODE END OPAMP6_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMAMUX1_CLK_ENABLE();
+    __HAL_RCC_DMA1_CLK_ENABLE();
 }
 
 /**

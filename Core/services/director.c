@@ -39,6 +39,7 @@ QActive *const AO_Director = &Director_inst.super;
 static QState initial(Director *const me, void const *const par);
 static QState top(Director *const me, QEvt const *const e);
 static QState standby(Director *const me, QEvt const *const e);
+static QState active(Director *const me, QEvt const *const e);
 static QState charging(Director *const me, QEvt const *const e);
 
 /**************************************************************************************************\
@@ -65,6 +66,7 @@ QState initial(Director *const me, void const *const par)
     QActive_subscribe((QActive *) me, PUBSUB_TRANSMITTER_CHARGE_SIG);
     QActive_subscribe((QActive *) me, PUBSUB_XDCR_PWR_SIG);
     QActive_subscribe((QActive *) me, PUBSUB_ECHO_BEGIN_SIG);
+    QActive_subscribe((QActive *) me, PUBSUB_RECEIVE_COMPLETE_SIG);
 
     // arm the time event to expire in half a second and every half second
     // QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC / 2U, BSP_TICKS_PER_SEC / 2U);
@@ -79,6 +81,7 @@ QState top(Director *const me, QEvt const *const e)
     switch (e->sig)
     {
         case Q_ENTRY_SIG: {
+            BSP_Set_Transmitter_Power_Enable(true);
             status = Q_HANDLED();
             break;
         }
@@ -132,8 +135,29 @@ QState standby(Director *const me, QEvt const *const e)
             break;
         }
         case PUBSUB_ECHO_BEGIN_SIG: {
+            status = Q_TRAN(&active);
+            break;
+        }
+        default: {
+            status = Q_SUPER(&top);
+            break;
+        }
+    }
+    return status;
+}
+//............................................................................
+QState active(Director *const me, QEvt const *const e)
+{
+    QState status;
+    switch (e->sig)
+    {
+        case Q_ENTRY_SIG: {
             BSP_Begin_Sonar_Transceive();
             status = Q_HANDLED();
+            break;
+        }
+        case PUBSUB_RECEIVE_COMPLETE_SIG: {
+            status = Q_TRAN(&standby);
             break;
         }
         default: {

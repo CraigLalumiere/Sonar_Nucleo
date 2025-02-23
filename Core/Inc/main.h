@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -75,8 +77,12 @@ void Error_Handler(void);
 #define WATER_TEMP_GPIO_Port     GPIOC
 #define XRDC_RX_AMP_Pin          GPIO_PIN_11
 #define XRDC_RX_AMP_GPIO_Port    GPIOB
-#define FW_LEDC10_Pin            GPIO_PIN_10
-#define FW_LEDC10_GPIO_Port      GPIOC
+#define PWM_B_Pin                GPIO_PIN_8
+#define PWM_B_GPIO_Port          GPIOC
+#define PWM_A_Pin                GPIO_PIN_9
+#define PWM_A_GPIO_Port          GPIOC
+#define FW_LED_2_Pin             GPIO_PIN_10
+#define FW_LED_2_GPIO_Port       GPIOC
 #define XDCR_PWR_EN_Pin          GPIO_PIN_11
 #define XDCR_PWR_EN_GPIO_Port    GPIOC
 #define DEBUG_GPIO_Pin           GPIO_PIN_6

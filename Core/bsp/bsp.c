@@ -150,11 +150,13 @@ void BSP_Init(void)
 void BSP_LED_On()
 {
     HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, 1);
+    HAL_GPIO_WritePin(FW_LEDC10_GPIO_Port, FW_LEDC10_Pin, 1);
 }
 //............................................................................
 void BSP_LED_Off()
 {
     HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, 0);
+    HAL_GPIO_WritePin(FW_LEDC10_GPIO_Port, FW_LEDC10_Pin, 0);
 }
 //............................................................................
 void BSP_debug_gpio_on()
@@ -189,6 +191,8 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer)
 
     // Restart the DMA since it is in normal mode, not circular
     retval = HAL_ADC_Start_DMA(&hadc2, (uint32_t *) dma_buffer, 2);
+    // not sure why this is necessary, I didn't need it when I did the same thing on Purafy!
+    __HAL_ADC_ENABLE_IT(&hadc2, ADC_IT_EOS);
     Q_ASSERT(retval == HAL_OK);
 }
 

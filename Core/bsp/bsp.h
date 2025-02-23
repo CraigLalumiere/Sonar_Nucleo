@@ -12,6 +12,9 @@
 #define BSP_TICKS_PER_SEC         1000U
 #define MILLISECONDS_TO_TICKS(ms) ((ms) * ((BSP_TICKS_PER_SEC) / 1000))
 
+#define AVREF          3.275
+#define ADC_RESOLUTION 4096
+
 /**************************************************************************************************\
 * Public type definitions
 \**************************************************************************************************/

@@ -57,7 +57,7 @@ QState initial(Director *const me, void const *const par)
 {
     Q_UNUSED_PAR(par);
 
-    QActive_subscribe((QActive *) me, PUBSUB_SAMPLE_TEMP_SIG);
+    QActive_subscribe((QActive *) me, PUBSUB_SAMPLE_TEMP_PWR_SIG);
     QActive_subscribe((QActive *) me, PUBSUB_ADC2_COMPLETE_SIG);
 
     // arm the time event to expire in half a second and every half second
@@ -76,12 +76,26 @@ QState running(Director *const me, QEvt const *const e)
             status = Q_HANDLED();
             break;
         }
-        case PUBSUB_SAMPLE_TEMP_SIG: {
+        case PUBSUB_SAMPLE_TEMP_PWR_SIG: {
             BSP_Temp_Pwr_ADC_Begin_Conversion(me->adc_dma_buffer);
             status = Q_HANDLED();
             break;
         }
         case PUBSUB_ADC2_COMPLETE_SIG: {
+            uint16_t xdcr_pwr   = me->adc_dma_buffer[0];
+            float xdcr_volts    = (float) xdcr_pwr * AVREF / ADC_RESOLUTION;
+            uint16_t water_temp = me->adc_dma_buffer[1];
+
+            ADCEvent_T *temp_event = Q_NEW(ADCEvent_T, PUBSUB_WATER_TEMP_SIG);
+            temp_event->raw        = water_temp;
+            temp_event->value      = 0; // to do
+            QACTIVE_PUBLISH(&temp_event->super, AO_Director);
+
+            ADCEvent_T *pwr_event = Q_NEW(ADCEvent_T, PUBSUB_XDCR_PWR_SIG);
+            pwr_event->raw        = xdcr_pwr;
+            pwr_event->value      = xdcr_volts;
+            QACTIVE_PUBLISH(&temp_event->super, AO_Director);
+
             status = Q_HANDLED();
             break;
         }

@@ -20,7 +20,8 @@
         "bsp.h": "c",
         "addxytoplot.pb.h": "c",
         "clearplots.pb.h": "c",
-        "fault_manager.h": "c"
+        "fault_manager.h": "c",
+        "serial_interface.h": "c"
     },
     "editor.rulers": [
         100

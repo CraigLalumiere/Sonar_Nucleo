@@ -9,8 +9,10 @@ enum PubSubSignals
 {
     PUBSUB_FIRST_SIG = Q_USER_SIG,
     PUBSUB_FAULT_GENERATED_SIG,
-    PUBSUB_SAMPLE_TEMP_SIG,
+    PUBSUB_SAMPLE_TEMP_PWR_SIG,
     PUBSUB_ADC2_COMPLETE_SIG,
+    PUBSUB_WATER_TEMP_SIG,
+    PUBSUB_XDCR_PWR_SIG,
     PUBSUB_MAX_SIG
 };
 
@@ -25,6 +27,13 @@ typedef struct
     QEvt super;
     int16_t value;
 } Int16Event_T;
+
+typedef struct
+{
+    QEvt super;
+    uint16_t raw;
+    float value;
+} ADCEvent_T;
 
 typedef struct
 {

@@ -59,6 +59,7 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer);
  **************************************************************************************************/
 
 void BSP_Set_Transmitter_Power_Enable(bool en);
+void BSP_Begin_Sonar_Transceive();
 
 /**
  ***************************************************************************************************

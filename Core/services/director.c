@@ -2,6 +2,7 @@
 #include "bsp.h"
 #include "pc_com.h"
 #include "private_signal_ranges.h"
+#include <stdio.h>
 
 /**************************************************************************************************\
 * Private macros
@@ -37,6 +38,7 @@ QActive *const AO_Director = &Director_inst.super;
 
 static QState initial(Director *const me, void const *const par);
 static QState top(Director *const me, QEvt const *const e);
+static QState standby(Director *const me, QEvt const *const e);
 static QState charging(Director *const me, QEvt const *const e);
 
 /**************************************************************************************************\
@@ -62,6 +64,7 @@ QState initial(Director *const me, void const *const par)
     QActive_subscribe((QActive *) me, PUBSUB_ADC2_COMPLETE_SIG);
     QActive_subscribe((QActive *) me, PUBSUB_TRANSMITTER_CHARGE_SIG);
     QActive_subscribe((QActive *) me, PUBSUB_XDCR_PWR_SIG);
+    QActive_subscribe((QActive *) me, PUBSUB_ECHO_BEGIN_SIG);
 
     // arm the time event to expire in half a second and every half second
     // QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC / 2U, BSP_TICKS_PER_SEC / 2U);
@@ -77,6 +80,10 @@ QState top(Director *const me, QEvt const *const e)
     {
         case Q_ENTRY_SIG: {
             status = Q_HANDLED();
+            break;
+        }
+        case Q_INIT_SIG: {
+            status = Q_TRAN(&standby);
             break;
         }
         case PUBSUB_SAMPLE_TEMP_PWR_SIG: {
@@ -115,6 +122,28 @@ QState top(Director *const me, QEvt const *const e)
     return status;
 }
 //............................................................................
+QState standby(Director *const me, QEvt const *const e)
+{
+    QState status;
+    switch (e->sig)
+    {
+        case Q_ENTRY_SIG: {
+            status = Q_HANDLED();
+            break;
+        }
+        case PUBSUB_ECHO_BEGIN_SIG: {
+            BSP_Begin_Sonar_Transceive();
+            status = Q_HANDLED();
+            break;
+        }
+        default: {
+            status = Q_SUPER(&top);
+            break;
+        }
+    }
+    return status;
+}
+//............................................................................
 QState charging(Director *const me, QEvt const *const e)
 {
     QState status;
@@ -143,7 +172,9 @@ QState charging(Director *const me, QEvt const *const e)
 
             if (voltage > 12.0)
             {
-                PC_COM_print("Charging complete");
+                char print_buffer[PC_COM_EVENT_MAX_MSG_LENGTH] = {0};
+                snprintf(print_buffer, sizeof(print_buffer), "Charged to = %.2fV", voltage);
+                PC_COM_print(print_buffer);
                 status = Q_TRAN(&top);
             }
             else

@@ -27,6 +27,7 @@ static void on_fault(EmbeddedCli *cli, char *args, void *context);
 static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context);
 static void on_cli_transmitter_power(EmbeddedCli *cli, char *args, void *context);
 static void on_cli_transmitter_charge(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_echo(EmbeddedCli *cli, char *args, void *context);
 
 static CliCommandBinding cli_cmd_list[] = {
     (CliCommandBinding) {
@@ -59,6 +60,14 @@ static CliCommandBinding cli_cmd_list[] = {
         true,                                 // flag whether to tokenize arguments
         NULL,                                 // optional pointer to any application context
         on_cli_transmitter_charge             // binding function
+    },
+
+    (CliCommandBinding) {
+        "echo",               // command name (spaces are not allowed)
+        "activate the sonar", // Optional help for a command
+        true,                 // flag whether to tokenize arguments
+        NULL,                 // optional pointer to any application context
+        on_cli_echo           // binding function
     },
 
     (CliCommandBinding) {
@@ -139,6 +148,12 @@ static void on_cli_transmitter_power(EmbeddedCli *cli, char *args, void *context
 static void on_cli_transmitter_charge(EmbeddedCli *cli, char *args, void *context)
 {
     static QEvt const event = QEVT_INITIALIZER(PUBSUB_TRANSMITTER_CHARGE_SIG);
+    QACTIVE_PUBLISH(&event, NULL);
+}
+
+static void on_cli_echo(EmbeddedCli *cli, char *args, void *context)
+{
+    static QEvt const event = QEVT_INITIALIZER(PUBSUB_ECHO_BEGIN_SIG);
     QACTIVE_PUBLISH(&event, NULL);
 }
 

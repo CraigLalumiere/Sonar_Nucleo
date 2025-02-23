@@ -81,12 +81,16 @@ void Error_Handler(void);
 #define PWM_B_GPIO_Port          GPIOC
 #define PWM_A_Pin                GPIO_PIN_9
 #define PWM_A_GPIO_Port          GPIOC
+#define XDCR_SHORT_Pin           GPIO_PIN_11
+#define XDCR_SHORT_GPIO_Port     GPIOA
 #define FW_LED_2_Pin             GPIO_PIN_10
 #define FW_LED_2_GPIO_Port       GPIOC
 #define XDCR_PWR_EN_Pin          GPIO_PIN_11
 #define XDCR_PWR_EN_GPIO_Port    GPIOC
 #define DEBUG_GPIO_Pin           GPIO_PIN_6
 #define DEBUG_GPIO_GPIO_Port     GPIOB
+#define nXDCR_DECOUPLE_Pin       GPIO_PIN_7
+#define nXDCR_DECOUPLE_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

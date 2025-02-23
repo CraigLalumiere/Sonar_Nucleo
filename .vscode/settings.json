@@ -19,7 +19,8 @@
         "analyzer.h": "c",
         "bsp.h": "c",
         "addxytoplot.pb.h": "c",
-        "clearplots.pb.h": "c"
+        "clearplots.pb.h": "c",
+        "fault_manager.h": "c"
     },
     "editor.rulers": [
         100

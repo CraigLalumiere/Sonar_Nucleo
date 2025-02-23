@@ -1,5 +1,6 @@
-#include "blinky.h"
+#include "director.h"
 #include "bsp.h"
+#include "pc_com.h"
 #include "private_signal_ranges.h"
 
 /**************************************************************************************************\
@@ -10,40 +11,41 @@
 * Private type definitions
 \**************************************************************************************************/
 
-enum BlinkySignals
+enum DirectorSignals
 {
-    BLINKY_TIMEOUT_SIG = PRIVATE_SIGNAL_BLINKY_START,
+    TIMEOUT_SIG = PRIVATE_SIGNAL_DIRECTOR_START,
 };
 
 typedef struct
 {
     QActive super;    // inherit QActive
     QTimeEvt timeEvt; // private time event generator
-} Blinky;
+
+    uint16_t adc_dma_buffer[2];
+} Director;
 
 /**************************************************************************************************\
 * Private memory declarations
 \**************************************************************************************************/
 
-Blinky Blinky_inst; // TODO: should this be static?
-QActive *const AO_Blinky = &Blinky_inst.super;
+Director Director_inst; // TODO: should this be static?
+QActive *const AO_Director = &Director_inst.super;
 
 /**************************************************************************************************\
 * Private prototypes
 \**************************************************************************************************/
 
-static QState Blinky_initial(Blinky *const me, void const *const par);
-static QState Blinky_off(Blinky *const me, QEvt const *const e);
-static QState Blinky_on(Blinky *const me, QEvt const *const e);
+static QState initial(Director *const me, void const *const par);
+static QState running(Director *const me, QEvt const *const e);
 
 /**************************************************************************************************\
 * Public functions
 \**************************************************************************************************/
-void Blinky_ctor(void)
+void Director_ctor(void)
 {
-    Blinky *const me = &Blinky_inst;
-    QActive_ctor(&me->super, Q_STATE_CAST(&Blinky_initial));
-    QTimeEvt_ctorX(&me->timeEvt, &me->super, BLINKY_TIMEOUT_SIG, 0U);
+    Director *const me = &Director_inst;
+    QActive_ctor(&me->super, Q_STATE_CAST(&initial));
+    QTimeEvt_ctorX(&me->timeEvt, &me->super, TIMEOUT_SIG, 0U);
 }
 
 /**************************************************************************************************\
@@ -51,51 +53,36 @@ void Blinky_ctor(void)
 \**************************************************************************************************/
 
 // HSM definition ----------------------------------------------------------
-QState Blinky_initial(Blinky *const me, void const *const par)
+QState initial(Director *const me, void const *const par)
 {
     Q_UNUSED_PAR(par);
 
+    QActive_subscribe((QActive *) me, PUBSUB_SAMPLE_TEMP_SIG);
+    QActive_subscribe((QActive *) me, PUBSUB_ADC2_COMPLETE_SIG);
+
     // arm the time event to expire in half a second and every half second
-    QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC / 2U, BSP_TICKS_PER_SEC / 2U);
+    // QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC / 2U, BSP_TICKS_PER_SEC / 2U);
 
-    return Q_TRAN(&Blinky_off);
+    return Q_TRAN(&running);
 }
 
 //............................................................................
-QState Blinky_off(Blinky *const me, QEvt const *const e)
+QState running(Director *const me, QEvt const *const e)
 {
     QState status;
     switch (e->sig)
     {
         case Q_ENTRY_SIG: {
-            BSP_LED_Off();
             status = Q_HANDLED();
             break;
         }
-        case BLINKY_TIMEOUT_SIG: {
-            status = Q_TRAN(&Blinky_on);
-            break;
-        }
-        default: {
-            status = Q_SUPER(&QHsm_top);
-            break;
-        }
-    }
-    return status;
-}
-//............................................................................
-QState Blinky_on(Blinky *const me, QEvt const *const e)
-{
-    QState status;
-    switch (e->sig)
-    {
-        case Q_ENTRY_SIG: {
-            BSP_LED_On();
+        case PUBSUB_SAMPLE_TEMP_SIG: {
+            BSP_Temp_Pwr_ADC_Begin_Conversion(me->adc_dma_buffer);
             status = Q_HANDLED();
             break;
         }
-        case BLINKY_TIMEOUT_SIG: {
-            status = Q_TRAN(&Blinky_off);
+        case PUBSUB_ADC2_COMPLETE_SIG: {
+            status = Q_HANDLED();
             break;
         }
         default: {

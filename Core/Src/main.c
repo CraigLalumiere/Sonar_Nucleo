@@ -24,7 +24,7 @@
 
 #include "blinky.h"
 #include "bsp.h"
-// #include "cli.h"
+#include "director.h"
 #include "pc_com.h"
 #include "posted_signals.h"
 #include "qpc.h"
@@ -46,6 +46,7 @@ typedef enum
 {
     AO_RESERVED = 0U,
     AO_PRIO_BLINKY,
+    AO_PRIO_DIRECTOR,
     AO_PRIO_APP_CLI,
     AO_PRIO_APP_PC_COM,
 } AO_Priority_T;
@@ -200,16 +201,16 @@ int main(void)
         0U,          // no stack storage
         (void *) 0); // no initialization param
 
-    // static QEvt const *cli_QueueSto[20];
-    // AppCLI_ctor(BSP_Get_Serial_IO_Interface_UART());
-    // QACTIVE_START(
-    //     AO_AppCLI,
-    //     AO_PRIO_APP_CLI,     // QP prio. of the AO
-    //     cli_QueueSto,        // event queue storage
-    //     Q_DIM(cli_QueueSto), // queue length [events]
-    //     (void *) 0,          // stack storage (not used in QK)
-    //     0U,                  // stack size [bytes] (not used in QK)
-    //     (void *) 0);         // no initialization param
+    static QEvt const *directorQueueSto[10];
+    Director_ctor();
+    QACTIVE_START(
+        AO_Director,
+        AO_PRIO_DIRECTOR,        // QP prio. of the AO
+        directorQueueSto,        // event queue storage
+        Q_DIM(directorQueueSto), // queue length [events]
+        (void *) 0,
+        0U,          // no stack storage
+        (void *) 0); // no initialization param
 
     static QEvt const *app_pc_com_QueueSto[600];
     PC_COM_ctor(BSP_Get_Serial_IO_Interface_UART());

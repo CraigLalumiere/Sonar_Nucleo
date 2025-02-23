@@ -45,6 +45,13 @@ void BSP_debug_gpio_toggle(void);
 
 /**
  ***************************************************************************************************
+ * @brief   Functions for temp sensor
+ **************************************************************************************************/
+
+void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer);
+
+/**
+ ***************************************************************************************************
  * @brief   Retrieve Serial IO interface for the UART Interface serial comms channels
  **************************************************************************************************/
 const Serial_IO_T *BSP_Get_Serial_IO_Interface_UART();

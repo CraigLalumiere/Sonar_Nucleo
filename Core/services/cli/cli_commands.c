@@ -24,6 +24,7 @@ static void on_cli_toggle_led(EmbeddedCli *cli, char *args, void *context);
 static void on_print_reset_reason(EmbeddedCli *cli, char *args, void *context);
 static void on_do_q_assert(EmbeddedCli *cli, char *args, void *context);
 static void on_fault(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context);
 
 static CliCommandBinding cli_cmd_list[] = {
     (CliCommandBinding) {
@@ -32,6 +33,14 @@ static CliCommandBinding cli_cmd_list[] = {
         false,                            // flag whether to tokenize arguments
         NULL,                             // optional pointer to any application context
         on_cli_toggle_led                 // binding function
+    },
+
+    (CliCommandBinding) {
+        "temperature",              // command name (spaces are not allowed)
+        "read the temperature ADC", // Optional help for a command
+        true,                       // flag whether to tokenize arguments
+        NULL,                       // optional pointer to any application context
+        on_cli_temperature          // binding function
     },
 
     (CliCommandBinding) {
@@ -93,6 +102,12 @@ static void on_cli_toggle_led(EmbeddedCli *cli, char *args, void *context)
 
     // send (post) the event to the Blinky active object
     QACTIVE_POST(AO_Blinky, &ToggleLEDEvent, null);
+}
+
+static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context)
+{
+    static QEvt const event = QEVT_INITIALIZER(PUBSUB_SAMPLE_TEMP_SIG);
+    QACTIVE_PUBLISH(&event, NULL);
 }
 
 static void on_print_reset_reason(EmbeddedCli *cli, char *args, void *context)

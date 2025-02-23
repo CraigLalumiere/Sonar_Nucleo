@@ -187,12 +187,12 @@ void DebugMon_Handler(void)
 void ADC1_2_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC1_2_IRQn 0 */
-
+    QK_ISR_ENTRY();
     /* USER CODE END ADC1_2_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     HAL_ADC_IRQHandler(&hadc2);
     /* USER CODE BEGIN ADC1_2_IRQn 1 */
-
+    QK_ISR_EXIT();
     /* USER CODE END ADC1_2_IRQn 1 */
 }
 

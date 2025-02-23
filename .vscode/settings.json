@@ -21,7 +21,8 @@
         "addxytoplot.pb.h": "c",
         "clearplots.pb.h": "c",
         "fault_manager.h": "c",
-        "serial_interface.h": "c"
+        "serial_interface.h": "c",
+        "stddef.h": "c"
     },
     "editor.rulers": [
         100

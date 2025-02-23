@@ -55,6 +55,13 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer);
 
 /**
  ***************************************************************************************************
+ * @brief   Functions for sonar transmitter
+ **************************************************************************************************/
+
+void BSP_Set_Transmitter_Power_Enable(bool en);
+
+/**
+ ***************************************************************************************************
  * @brief   Retrieve Serial IO interface for the UART Interface serial comms channels
  **************************************************************************************************/
 const Serial_IO_T *BSP_Get_Serial_IO_Interface_UART();

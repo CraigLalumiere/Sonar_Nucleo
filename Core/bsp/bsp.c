@@ -196,6 +196,16 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer)
     Q_ASSERT(retval == HAL_OK);
 }
 
+/**
+ ***************************************************************************************************
+ * @brief   Functions for sonar transmitter
+ **************************************************************************************************/
+
+void BSP_Set_Transmitter_Power_Enable(bool en)
+{
+    HAL_GPIO_WritePin(XDCR_PWR_EN_GPIO_Port, XDCR_PWR_EN_Pin, en);
+}
+
 //............................................................................
 void BSP_terminate(int16_t result)
 {

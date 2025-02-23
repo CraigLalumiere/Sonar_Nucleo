@@ -25,7 +25,8 @@ static void on_print_reset_reason(EmbeddedCli *cli, char *args, void *context);
 static void on_do_q_assert(EmbeddedCli *cli, char *args, void *context);
 static void on_fault(EmbeddedCli *cli, char *args, void *context);
 static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context);
-static void on_cli_xdcr_power(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_transmitter_power(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_transmitter_charge(EmbeddedCli *cli, char *args, void *context);
 
 static CliCommandBinding cli_cmd_list[] = {
     (CliCommandBinding) {
@@ -45,11 +46,19 @@ static CliCommandBinding cli_cmd_list[] = {
     },
 
     (CliCommandBinding) {
-        "transmitter_voltage",            // command name (spaces are not allowed)
+        "transmitter-read",               // command name (spaces are not allowed)
         "read the transmitter's voltage", // Optional help for a command
         true,                             // flag whether to tokenize arguments
         NULL,                             // optional pointer to any application context
-        on_cli_xdcr_power                 // binding function
+        on_cli_transmitter_power          // binding function
+    },
+
+    (CliCommandBinding) {
+        "transmitter-charge",                 // command name (spaces are not allowed)
+        "charge the transmitter's capacitor", // Optional help for a command
+        true,                                 // flag whether to tokenize arguments
+        NULL,                                 // optional pointer to any application context
+        on_cli_transmitter_charge             // binding function
     },
 
     (CliCommandBinding) {
@@ -120,10 +129,16 @@ static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context)
     QACTIVE_PUBLISH(&event, NULL);
 }
 
-static void on_cli_xdcr_power(EmbeddedCli *cli, char *args, void *context)
+static void on_cli_transmitter_power(EmbeddedCli *cli, char *args, void *context)
 {
     QActive_subscribe(AO_PC_COM, PUBSUB_XDCR_PWR_SIG);
     static QEvt const event = QEVT_INITIALIZER(PUBSUB_SAMPLE_TEMP_PWR_SIG);
+    QACTIVE_PUBLISH(&event, NULL);
+}
+
+static void on_cli_transmitter_charge(EmbeddedCli *cli, char *args, void *context)
+{
+    static QEvt const event = QEVT_INITIALIZER(PUBSUB_TRANSMITTER_CHARGE_SIG);
     QACTIVE_PUBLISH(&event, NULL);
 }
 

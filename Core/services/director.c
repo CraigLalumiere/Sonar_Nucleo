@@ -36,7 +36,8 @@ QActive *const AO_Director = &Director_inst.super;
 \**************************************************************************************************/
 
 static QState initial(Director *const me, void const *const par);
-static QState running(Director *const me, QEvt const *const e);
+static QState top(Director *const me, QEvt const *const e);
+static QState charging(Director *const me, QEvt const *const e);
 
 /**************************************************************************************************\
 * Public functions
@@ -59,15 +60,17 @@ QState initial(Director *const me, void const *const par)
 
     QActive_subscribe((QActive *) me, PUBSUB_SAMPLE_TEMP_PWR_SIG);
     QActive_subscribe((QActive *) me, PUBSUB_ADC2_COMPLETE_SIG);
+    QActive_subscribe((QActive *) me, PUBSUB_TRANSMITTER_CHARGE_SIG);
+    QActive_subscribe((QActive *) me, PUBSUB_XDCR_PWR_SIG);
 
     // arm the time event to expire in half a second and every half second
     // QTimeEvt_armX(&me->timeEvt, BSP_TICKS_PER_SEC / 2U, BSP_TICKS_PER_SEC / 2U);
 
-    return Q_TRAN(&running);
+    return Q_TRAN(&top);
 }
 
 //............................................................................
-QState running(Director *const me, QEvt const *const e)
+QState top(Director *const me, QEvt const *const e)
 {
     QState status;
     switch (e->sig)
@@ -82,8 +85,9 @@ QState running(Director *const me, QEvt const *const e)
             break;
         }
         case PUBSUB_ADC2_COMPLETE_SIG: {
-            uint16_t xdcr_pwr   = me->adc_dma_buffer[0];
-            float xdcr_volts    = (float) xdcr_pwr * AVREF / ADC_RESOLUTION;
+            uint16_t xdcr_pwr = me->adc_dma_buffer[0];
+            // *6 determine by voltage divider on PCB
+            float xdcr_volts    = (float) xdcr_pwr * AVREF / ADC_RESOLUTION * 6;
             uint16_t water_temp = me->adc_dma_buffer[1];
 
             ADCEvent_T *temp_event = Q_NEW(ADCEvent_T, PUBSUB_WATER_TEMP_SIG);
@@ -99,8 +103,55 @@ QState running(Director *const me, QEvt const *const e)
             status = Q_HANDLED();
             break;
         }
+        case PUBSUB_TRANSMITTER_CHARGE_SIG: {
+            status = Q_TRAN(&charging);
+            break;
+        }
         default: {
             status = Q_SUPER(&QHsm_top);
+            break;
+        }
+    }
+    return status;
+}
+//............................................................................
+QState charging(Director *const me, QEvt const *const e)
+{
+    QState status;
+    switch (e->sig)
+    {
+        case Q_ENTRY_SIG: {
+            BSP_Set_Transmitter_Power_Enable(true);
+            QTimeEvt_armX(&me->timeEvt, MILLISECONDS_TO_TICKS(10), MILLISECONDS_TO_TICKS(10));
+            status = Q_HANDLED();
+            break;
+        }
+        case Q_EXIT_SIG: {
+            BSP_Set_Transmitter_Power_Enable(false);
+            QTimeEvt_disarm(&me->timeEvt);
+            status = Q_HANDLED();
+            break;
+        }
+        case TIMEOUT_SIG: {
+            // sample ADC to read transmitter voltage
+            BSP_Temp_Pwr_ADC_Begin_Conversion(me->adc_dma_buffer);
+            status = Q_HANDLED();
+            break;
+        }
+        case PUBSUB_XDCR_PWR_SIG: {
+            float voltage = Q_EVT_CAST(ADCEvent_T)->value;
+
+            if (voltage > 12.0)
+            {
+                PC_COM_print("Charging complete");
+                status = Q_TRAN(&top);
+            }
+            else
+                status = Q_HANDLED();
+            break;
+        }
+        default: {
+            status = Q_SUPER(&top);
             break;
         }
     }

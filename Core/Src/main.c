@@ -972,30 +972,19 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOC,
-        GainSel0_Pin | GainSel1_Pin | GainSel2_Pin | FW_LED_2_Pin | XDCR_PWR_EN_Pin,
+        GainSel0_Pin | GainSel1_Pin | GainSel2_Pin | FW_LED_Pin | XDCR_PWR_EN_Pin,
         GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : GainSel0_Pin GainSel1_Pin GainSel2_Pin FW_LED_2_Pin
+    /*Configure GPIO pins : GainSel0_Pin GainSel1_Pin GainSel2_Pin FW_LED_Pin
                              XDCR_PWR_EN_Pin */
-    GPIO_InitStruct.Pin = GainSel0_Pin | GainSel1_Pin | GainSel2_Pin | FW_LED_2_Pin |
-        XDCR_PWR_EN_Pin;
+    GPIO_InitStruct.Pin = GainSel0_Pin | GainSel1_Pin | GainSel2_Pin | FW_LED_Pin | XDCR_PWR_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : FW_LED_Pin */
-    GPIO_InitStruct.Pin   = FW_LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(FW_LED_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : DEBUG_GPIO_Pin */
     GPIO_InitStruct.Pin   = DEBUG_GPIO_Pin;

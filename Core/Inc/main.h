@@ -69,8 +69,6 @@ void Error_Handler(void);
 #define XDCR_RX_GPIO_Port        GPIOA
 #define XDCR_RX_AC_Pin           GPIO_PIN_1
 #define XDCR_RX_AC_GPIO_Port     GPIOA
-#define FW_LED_Pin               GPIO_PIN_5
-#define FW_LED_GPIO_Port         GPIOA
 #define XDCR_PWR_SENSE_Pin       GPIO_PIN_6
 #define XDCR_PWR_SENSE_GPIO_Port GPIOA
 #define WATER_TEMP_Pin           GPIO_PIN_5
@@ -83,8 +81,8 @@ void Error_Handler(void);
 #define PWM_A_GPIO_Port          GPIOC
 #define XDCR_SHORT_Pin           GPIO_PIN_11
 #define XDCR_SHORT_GPIO_Port     GPIOA
-#define FW_LED_2_Pin             GPIO_PIN_10
-#define FW_LED_2_GPIO_Port       GPIOC
+#define FW_LED_Pin               GPIO_PIN_10
+#define FW_LED_GPIO_Port         GPIOC
 #define XDCR_PWR_EN_Pin          GPIO_PIN_11
 #define XDCR_PWR_EN_GPIO_Port    GPIOC
 #define DEBUG_GPIO_Pin           GPIO_PIN_6

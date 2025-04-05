@@ -200,13 +200,11 @@ void BSP_Init(void)
 void BSP_LED_On()
 {
     HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, 1);
-    HAL_GPIO_WritePin(FW_LED_2_GPIO_Port, FW_LED_2_Pin, 1);
 }
 //............................................................................
 void BSP_LED_Off()
 {
     HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, 0);
-    HAL_GPIO_WritePin(FW_LED_2_GPIO_Port, FW_LED_2_Pin, 0);
 }
 //............................................................................
 void BSP_debug_gpio_on()

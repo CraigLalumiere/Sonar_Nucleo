@@ -24,9 +24,8 @@ Q_DEFINE_THIS_MODULE("bsp.c")
 extern ADC_HandleTypeDef hadc2;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim15;
 
 /**************************************************************************************************\
 * Private prototypes
@@ -174,27 +173,21 @@ void BSP_Init(void)
 
     HAL_Delay(1); // delay to prevent bug of TIM20 getting triggered immediately
 
-    // TIM8 CH1 used to trigger TIM3
+    // TIM8 CH1/CH1n is half bridge 1
     retval = HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     Q_ASSERT(retval == HAL_OK);
-
-    // TIM8 CH4 is PWM_A
-    retval = HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
+    retval = HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1);
     Q_ASSERT(retval == HAL_OK);
 
-    // TIM3 CH3 is PWM_B
-    retval = HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+    // TIM8 CH2 triggers TIM15 such that it is a half period out of phase
+    retval = HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     Q_ASSERT(retval == HAL_OK);
 
-    //////////////////////////////////////////
-    // solid state relay control timer (TIM4)
-    //////////////////////////////////////////
-    // transducer 'short'
-    retval = HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+    // TIM15 CH1/CH1n is half bridge 2
+    retval = HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
     Q_ASSERT(retval == HAL_OK);
-    // transducer 'decouple'
-    // retval = HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
-    // Q_ASSERT(retval == HAL_OK);
+    retval = HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
+    Q_ASSERT(retval == HAL_OK);
 }
 //............................................................................
 void BSP_LED_On()
@@ -210,19 +203,19 @@ void BSP_LED_Off()
 void BSP_debug_gpio_on()
 {
     debug_gpio_state = true;
-    HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, debug_gpio_state);
+    // HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, debug_gpio_state);
 }
 //............................................................................
 void BSP_debug_gpio_off()
 {
     debug_gpio_state = false;
-    HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, debug_gpio_state);
+    // HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, debug_gpio_state);
 }
 //............................................................................
 void BSP_debug_gpio_toggle()
 {
     debug_gpio_state = !debug_gpio_state;
-    HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, debug_gpio_state);
+    // HAL_GPIO_WritePin(DEBUG_GPIO_GPIO_Port, DEBUG_GPIO_Pin, debug_gpio_state);
 }
 
 /**
@@ -251,7 +244,7 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer)
 
 void BSP_Set_Transmitter_Power_Enable(bool en)
 {
-    HAL_GPIO_WritePin(XDCR_PWR_EN_GPIO_Port, XDCR_PWR_EN_Pin, en);
+    // HAL_GPIO_WritePin(XDCR_PWR_EN_GPIO_Port, XDCR_PWR_EN_Pin, en);
 }
 
 void BSP_Begin_Sonar_Transceive()

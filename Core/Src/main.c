@@ -765,7 +765,8 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.Pulse = 10;
+    sConfigOC.OCMode = TIM_OCMODE_PWM2;
+    sConfigOC.Pulse  = 10;
     if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
@@ -829,7 +830,7 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_TIM_OC_Init(&htim15) != HAL_OK)
+    if (HAL_TIM_PWM_Init(&htim15) != HAL_OK)
     {
         Error_Handler();
     }
@@ -849,14 +850,14 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode       = TIM_OCMODE_TIMING;
+    sConfigOC.OCMode       = TIM_OCMODE_PWM1;
     sConfigOC.Pulse        = 15;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
     sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_OC_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }

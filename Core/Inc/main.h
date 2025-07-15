@@ -75,6 +75,8 @@ void Error_Handler(void);
 #define PWM_A_H_GPIO_Port       GPIOA
 #define WATER_TEMP_Pin          GPIO_PIN_5
 #define WATER_TEMP_GPIO_Port    GPIOC
+#define HV_EN_Pin               GPIO_PIN_0
+#define HV_EN_GPIO_Port         GPIOB
 #define XDCR_VREF_Pin           GPIO_PIN_1
 #define XDCR_VREF_GPIO_Port     GPIOB
 #define PWM_B_L_Pin             GPIO_PIN_14

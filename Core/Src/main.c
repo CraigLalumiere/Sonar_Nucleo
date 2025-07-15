@@ -99,7 +99,9 @@ DAC_HandleTypeDef hdac3;
 
 UART_HandleTypeDef hlpuart1;
 
-OPAMP_HandleTypeDef hopamp6;
+OPAMP_HandleTypeDef hopamp3;
+
+SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
@@ -118,11 +120,12 @@ static void MX_LPUART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_DAC3_Init(void);
-static void MX_OPAMP6_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM15_Init(void);
+static void MX_OPAMP3_Init(void);
+static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -169,11 +172,12 @@ int main(void)
     MX_ADC1_Init();
     MX_ADC2_Init();
     MX_DAC3_Init();
-    MX_OPAMP6_Init();
     MX_TIM8_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
     MX_TIM15_Init();
+    MX_OPAMP3_Init();
+    MX_SPI1_Init();
     /* USER CODE BEGIN 2 */
 
     uint16_t priority = QF_AWARE_ISR_CMSIS_PRI;
@@ -456,7 +460,7 @@ static void MX_DAC3_Init(void)
         Error_Handler();
     }
 
-    /** DAC channel OUT1 config
+    /** DAC channel OUT2 config
      */
     sConfig.DAC_HighFrequency           = DAC_HIGH_FREQUENCY_INTERFACE_MODE_AUTOMATIC;
     sConfig.DAC_DMADoubleDataMode       = DISABLE;
@@ -467,7 +471,7 @@ static void MX_DAC3_Init(void)
     sConfig.DAC_OutputBuffer            = DAC_OUTPUTBUFFER_DISABLE;
     sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_INTERNAL;
     sConfig.DAC_UserTrimming            = DAC_TRIMMING_FACTORY;
-    if (HAL_DAC_ConfigChannel(&hdac3, &sConfig, DAC_CHANNEL_1) != HAL_OK)
+    if (HAL_DAC_ConfigChannel(&hdac3, &sConfig, DAC_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
     }
@@ -522,35 +526,71 @@ static void MX_LPUART1_UART_Init(void)
 }
 
 /**
- * @brief OPAMP6 Initialization Function
+ * @brief OPAMP3 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_OPAMP6_Init(void)
+static void MX_OPAMP3_Init(void)
 {
-    /* USER CODE BEGIN OPAMP6_Init 0 */
+    /* USER CODE BEGIN OPAMP3_Init 0 */
 
-    /* USER CODE END OPAMP6_Init 0 */
+    /* USER CODE END OPAMP3_Init 0 */
 
-    /* USER CODE BEGIN OPAMP6_Init 1 */
+    /* USER CODE BEGIN OPAMP3_Init 1 */
 
-    /* USER CODE END OPAMP6_Init 1 */
-    hopamp6.Instance                    = OPAMP6;
-    hopamp6.Init.PowerMode              = OPAMP_POWERMODE_NORMALSPEED;
-    hopamp6.Init.Mode                   = OPAMP_PGA_MODE;
-    hopamp6.Init.NonInvertingInput      = OPAMP_NONINVERTINGINPUT_DAC;
-    hopamp6.Init.InternalOutput         = DISABLE;
-    hopamp6.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
-    hopamp6.Init.PgaConnect             = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0;
-    hopamp6.Init.PgaGain                = OPAMP_PGA_GAIN_2_OR_MINUS_1;
-    hopamp6.Init.UserTrimming           = OPAMP_TRIMMING_FACTORY;
-    if (HAL_OPAMP_Init(&hopamp6) != HAL_OK)
+    /* USER CODE END OPAMP3_Init 1 */
+    hopamp3.Instance                    = OPAMP3;
+    hopamp3.Init.PowerMode              = OPAMP_POWERMODE_NORMALSPEED;
+    hopamp3.Init.Mode                   = OPAMP_FOLLOWER_MODE;
+    hopamp3.Init.NonInvertingInput      = OPAMP_NONINVERTINGINPUT_DAC;
+    hopamp3.Init.InternalOutput         = DISABLE;
+    hopamp3.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
+    hopamp3.Init.UserTrimming           = OPAMP_TRIMMING_FACTORY;
+    if (HAL_OPAMP_Init(&hopamp3) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN OPAMP6_Init 2 */
+    /* USER CODE BEGIN OPAMP3_Init 2 */
 
-    /* USER CODE END OPAMP6_Init 2 */
+    /* USER CODE END OPAMP3_Init 2 */
+}
+
+/**
+ * @brief SPI1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SPI1_Init(void)
+{
+    /* USER CODE BEGIN SPI1_Init 0 */
+
+    /* USER CODE END SPI1_Init 0 */
+
+    /* USER CODE BEGIN SPI1_Init 1 */
+
+    /* USER CODE END SPI1_Init 1 */
+    /* SPI1 parameter configuration*/
+    hspi1.Instance               = SPI1;
+    hspi1.Init.Mode              = SPI_MODE_MASTER;
+    hspi1.Init.Direction         = SPI_DIRECTION_2LINES;
+    hspi1.Init.DataSize          = SPI_DATASIZE_4BIT;
+    hspi1.Init.CLKPolarity       = SPI_POLARITY_LOW;
+    hspi1.Init.CLKPhase          = SPI_PHASE_1EDGE;
+    hspi1.Init.NSS               = SPI_NSS_SOFT;
+    hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+    hspi1.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    hspi1.Init.TIMode            = SPI_TIMODE_DISABLE;
+    hspi1.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+    hspi1.Init.CRCPolynomial     = 7;
+    hspi1.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
+    hspi1.Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+    if (HAL_SPI_Init(&hspi1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SPI1_Init 2 */
+
+    /* USER CODE END SPI1_Init 2 */
 }
 
 /**
@@ -765,8 +805,7 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode = TIM_OCMODE_PWM2;
-    sConfigOC.Pulse  = 10;
+    sConfigOC.Pulse = 10;
     if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
@@ -830,7 +869,7 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_TIM_PWM_Init(&htim15) != HAL_OK)
+    if (HAL_TIM_OC_Init(&htim15) != HAL_OK)
     {
         Error_Handler();
     }
@@ -850,14 +889,14 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode       = TIM_OCMODE_PWM1;
+    sConfigOC.OCMode       = TIM_OCMODE_TIMING;
     sConfigOC.Pulse        = 15;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
     sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    if (HAL_TIM_OC_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
@@ -901,19 +940,29 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, GainSel0_Pin | GainSel1_Pin | GainSel2_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : FW_LED_Pin */
-    GPIO_InitStruct.Pin   = FW_LED_Pin;
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, FW_LED_Pin | nCS_Pin | nHV_DISCHARGE_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pins : GainSel0_Pin GainSel1_Pin GainSel2_Pin */
+    GPIO_InitStruct.Pin   = GainSel0_Pin | GainSel1_Pin | GainSel2_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(FW_LED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : FW_LED_Pin nCS_Pin nHV_DISCHARGE_Pin */
+    GPIO_InitStruct.Pin   = FW_LED_Pin | nCS_Pin | nHV_DISCHARGE_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

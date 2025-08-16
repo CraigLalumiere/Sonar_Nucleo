@@ -93,6 +93,7 @@ typedef struct
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 
 DAC_HandleTypeDef hdac3;
@@ -335,9 +336,9 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ContinuousConvMode    = DISABLE;
     hadc1.Init.NbrOfConversion       = 1;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIG_T1_TRGO;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.OversamplingMode      = DISABLE;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -870,7 +871,7 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_TIM_OC_Init(&htim15) != HAL_OK)
+    if (HAL_TIM_PWM_Init(&htim15) != HAL_OK)
     {
         Error_Handler();
     }
@@ -890,14 +891,14 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode       = TIM_OCMODE_TIMING;
+    sConfigOC.OCMode       = TIM_OCMODE_PWM1;
     sConfigOC.Pulse        = 15;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
     sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_OC_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }

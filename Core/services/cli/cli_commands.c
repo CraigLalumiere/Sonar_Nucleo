@@ -147,7 +147,7 @@ static void on_cli_hv_sense(EmbeddedCli *cli, char *args, void *context)
     "\r\n\
  Usage: hv-charge VOLTS\r\n\
  \r\n\
- VOLTS     Target voltage for high-voltage bus, Range 43 - 350\r\n\
+ VOLTS     Target voltage for high-voltage bus, Range 40 - 370\r\n\
 "
 static void on_cli_hv_charge(EmbeddedCli *cli, char *args, void *context)
 {
@@ -163,9 +163,9 @@ static void on_cli_hv_charge(EmbeddedCli *cli, char *args, void *context)
 
     const char *arg1 = embeddedCliGetToken(args, 1);
     arg_volts        = strtol(arg1, &arg_end, 10);
-    if (arg_volts < 43 || arg_volts > 350)
+    if (arg_volts < 40 || arg_volts > 370)
     {
-        embeddedCliPrint(cli, "\r\n VOLTAGE must be in range 43 - 350\r\n");
+        embeddedCliPrint(cli, "\r\n VOLTAGE must be in range 40 - 370\r\n");
         embeddedCliPrint(cli, HELP_FULL_CHARGE);
         return;
     }

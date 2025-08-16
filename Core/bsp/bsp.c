@@ -238,7 +238,7 @@ static void SPI_Init()
     p_hspi1->Init.CLKPolarity       = SPI_POLARITY_LOW;
     p_hspi1->Init.CLKPhase          = SPI_PHASE_1EDGE;
     p_hspi1->Init.NSS               = SPI_NSS_SOFT;
-    p_hspi1->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; // APB2 = 168MHz --> SPI5 = 21 MHz
+    p_hspi1->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16; // APB2 = 168MHz --> SPI5 = 10.5 MHz
     p_hspi1->Init.FirstBit          = SPI_FIRSTBIT_MSB;
     p_hspi1->Init.TIMode            = SPI_TIMODE_DISABLE;
     p_hspi1->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
@@ -339,10 +339,18 @@ void BSP_HV_Enable()
     HAL_GPIO_WritePin(nHV_DISCHARGE_GPIO_Port, nHV_DISCHARGE_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(HV_EN_GPIO_Port, HV_EN_Pin, GPIO_PIN_SET);
 }
+void BSP_HV_Disable()
+{
+    HAL_GPIO_WritePin(HV_EN_GPIO_Port, HV_EN_Pin, GPIO_PIN_RESET);
+}
 void BSP_HV_Discharge()
 {
-    HAL_GPIO_WritePin(nHV_DISCHARGE_GPIO_Port, nHV_DISCHARGE_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(HV_EN_GPIO_Port, HV_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(nHV_DISCHARGE_GPIO_Port, nHV_DISCHARGE_Pin, GPIO_PIN_RESET);
+}
+void BSP_HV_Stop_Discharge()
+{
+    HAL_GPIO_WritePin(nHV_DISCHARGE_GPIO_Port, nHV_DISCHARGE_Pin, GPIO_PIN_SET);
 }
 
 //............................................................................

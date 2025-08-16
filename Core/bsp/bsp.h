@@ -68,7 +68,9 @@ SPI_Write BSP_Get_SPI_Write_HV_DPOT();
 
 void BSP_Begin_Sonar_Transceive();
 void BSP_HV_Enable();
+void BSP_HV_Disable();
 void BSP_HV_Discharge();
+void BSP_HV_Stop_Discharge();
 
 /**
  ***************************************************************************************************

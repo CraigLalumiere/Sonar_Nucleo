@@ -402,8 +402,8 @@ static QState active(PC_COM *const me, QEvt const *const e)
             break;
         }
 
-        case PUBSUB_XDCR_PWR_SIG: {
-            QActive_unsubscribe(AO_PC_COM, PUBSUB_XDCR_PWR_SIG);
+        case PUBSUB_HV_SENSE_SIG: {
+            QActive_unsubscribe(AO_PC_COM, PUBSUB_HV_SENSE_SIG);
 
             float voltage = Q_EVT_CAST(ADCEvent_T)->value;
 

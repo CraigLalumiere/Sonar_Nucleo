@@ -2,6 +2,7 @@
 #define BSP_H_
 
 #include "interfaces/serial_interface.h"
+#include "interfaces/spi_interface.h"
 #include "stdint.h"
 #include <stdbool.h>
 
@@ -55,11 +56,19 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer);
 
 /**
  ***************************************************************************************************
+ * @brief   Functions for HV DPOT
+ **************************************************************************************************/
+
+SPI_Write BSP_Get_SPI_Write_HV_DPOT();
+
+/**
+ ***************************************************************************************************
  * @brief   Functions for sonar transmitter
  **************************************************************************************************/
 
-void BSP_Set_Transmitter_Power_Enable(bool en);
 void BSP_Begin_Sonar_Transceive();
+void BSP_HV_Enable();
+void BSP_HV_Discharge();
 
 /**
  ***************************************************************************************************

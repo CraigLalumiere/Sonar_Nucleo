@@ -22,7 +22,7 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.AddPathSubstitute ("workspaces/Ssonar_Nucleo", "$(ProjectDir)");
+  Project.AddPathSubstitute ("workspaces/Sonar_Nucleo", "$(ProjectDir)");
   Project.AddPathSubstitute ("workspaces/Sonar_Nucleo", "$(ProjectDir)");
   Project.SetDevice ("STM32G474RE");
   Project.SetHostIF ("USB", "");

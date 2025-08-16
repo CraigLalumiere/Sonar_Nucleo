@@ -1,6 +1,7 @@
 #ifndef DIRECTOR_H_
 #define DIRECTOR_H_
 
+#include "interfaces/spi_interface.h"
 #include "qpc.h"
 
 /**************************************************************************************************\
@@ -21,6 +22,6 @@ extern QActive *const AO_Director; // opaque pointer
 * Public prototypes
 \**************************************************************************************************/
 
-void Director_ctor(void);
+void Director_ctor(SPI_Write spi_write_hv_pot);
 
 #endif // DIRECTOR_H_

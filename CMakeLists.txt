@@ -105,6 +105,7 @@ set(sources_SRCS
     ${PROJ_PATH}/Core/services/pc_com/hdlc.c
     ${PROJ_PATH}/Core/services/pc_com/crc16.c
     ${PROJ_PATH}/Core/services/pc_com/pc_com.c  
+    ${PROJ_PATH}/Core/services/hvpot.c  
 
     # TODO: check if this file required
     ${PROJ_PATH}/Core/Src/system_stm32g4xx.c    
@@ -118,6 +119,8 @@ set(sources_SRCS
     ${PROJ_PATH}/Core/bsp/bsp_manual.c
     ${PROJ_PATH}/Core/bsp/gpio_stm32.c
     ${PROJ_PATH}/Core/bsp/uart.c
+    ${PROJ_PATH}/Core/bsp/spi_bus.c
+    ${PROJ_PATH}/Core/bsp/spi_bus_stm32.c
     ${PROJ_PATH}/Core/bsp/uart_mpu_specific.c
     ${PROJ_PATH}/Core/bsp/bsp_backup_ram.c
 

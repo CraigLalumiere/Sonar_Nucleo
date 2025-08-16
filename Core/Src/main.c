@@ -222,7 +222,7 @@ int main(void)
         (void *) 0); // no initialization param
 
     static QEvt const *directorQueueSto[10];
-    Director_ctor();
+    Director_ctor(BSP_Get_SPI_Write_HV_DPOT());
     QACTIVE_START(
         AO_Director,
         AO_PRIO_DIRECTOR,        // QP prio. of the AO
@@ -573,7 +573,7 @@ static void MX_SPI1_Init(void)
     hspi1.Instance               = SPI1;
     hspi1.Init.Mode              = SPI_MODE_MASTER;
     hspi1.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi1.Init.DataSize          = SPI_DATASIZE_4BIT;
+    hspi1.Init.DataSize          = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity       = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase          = SPI_PHASE_1EDGE;
     hspi1.Init.NSS               = SPI_NSS_SOFT;

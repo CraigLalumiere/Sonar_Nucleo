@@ -22,7 +22,10 @@
         "clearplots.pb.h": "c",
         "fault_manager.h": "c",
         "serial_interface.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "spi_interface.h": "c",
+        "stdbool.h": "c",
+        "hvpot.h": "c"
     },
     "editor.rulers": [
         100

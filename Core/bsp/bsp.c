@@ -1,10 +1,12 @@
 #include "bsp.h" // Board Support Package
 #include "halt_if_debugging.h"
+#include "interfaces/spi_interface.h"
 #include "interfaces/uart.h"
 #include "main.h"
 #include "pubsub_signals.h"
 #include "qpc.h" // QP/C real-time embedded framework
 #include "reset.h"
+#include "spi_bus_stm32.h"
 #include "stm32g4xx_hal.h"
 #include <stdio.h>
 
@@ -27,6 +29,19 @@ extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim15;
 
+typedef enum
+{
+    SPI_DEVICE_HV_DPOT
+} SPI_Device_ID_T;
+
+typedef struct
+{
+    SPI_Device_ID_T device_id;
+    SPI_Bus_ID_T bus_id;
+    SPI_Chip_Select_T chip_select;
+    SPI_Transfer_Params_T params;
+} SPI_Device_T;
+
 /**************************************************************************************************\
 * Private prototypes
 \**************************************************************************************************/
@@ -35,6 +50,14 @@ static uint16_t lpuart1_TransmitData(const uint8_t *data_ptr, const uint16_t dat
 static uint16_t lpuart1_ReceiveData(uint8_t *data_ptr, const uint16_t max_data_len);
 static void lpuart1_RegisterDataReadyCB(Serial_IO_Data_Ready_Callback cb, void *cb_data);
 static void Configure_lpuart1(UART_Config_T *p_uart_config);
+static void SPI_Init();
+
+static SPI_Return_T BSP_SPI_Write_HV_DPOT(
+    uint8_t *tx_buffer,
+    const uint16_t data_len,
+    SPI_Xfer_Complete_Callback complete_cb,
+    SPI_Xfer_Error_Callback error_cb,
+    void *cb_data);
 
 /**************************************************************************************************\
 * Private memory declarations
@@ -53,6 +76,14 @@ static uint8_t s_rx_data_buffer[UART1_RX_BUFFER_LEN] = {0};
 static uint8_t s_tx_data_buffer[UART1_TX_BUFFER_LEN] = {0};
 
 static bool debug_gpio_state = false;
+
+SPI_Device_T spi_devices[] = {
+    {SPI_DEVICE_HV_DPOT,
+     SPI_BUS_ID_1,
+     {GPIO_PORT_A_ID, 10},
+     {SPI_CLOCK_LOW, SPI_CLOCK_FIRST_EDGE}}};
+
+static SPI_Bus_T s_spi_bus1;
 
 /**************************************************************************************************\
 * Public functions
@@ -149,6 +180,10 @@ void BSP_Init(void)
     Configure_lpuart1(&lpuart1_config);
     UART_Init(&s_lpuart1, &lpuart1_config);
 
+    // Initialize SPI buses
+    SPI_Init();
+    SPI_Bus_Init(&s_spi_bus1, SPI_BUS_ID_1);
+
     // init temp sensor ADC
     HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
 
@@ -190,6 +225,29 @@ void BSP_Init(void)
     Q_ASSERT(retval == HAL_OK);
 }
 //............................................................................
+static void SPI_Init()
+{
+    HAL_StatusTypeDef retval;
+    // SPI Bus 5 Peripheral
+    SPI_HandleTypeDef *p_hspi1 = STM32_GetSPIHandle(SPI_BUS_ID_1);
+
+    p_hspi1->Instance               = SPI1;
+    p_hspi1->Init.Mode              = SPI_MODE_MASTER;
+    p_hspi1->Init.Direction         = SPI_DIRECTION_2LINES;
+    p_hspi1->Init.DataSize          = SPI_DATASIZE_8BIT;
+    p_hspi1->Init.CLKPolarity       = SPI_POLARITY_LOW;
+    p_hspi1->Init.CLKPhase          = SPI_PHASE_1EDGE;
+    p_hspi1->Init.NSS               = SPI_NSS_SOFT;
+    p_hspi1->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; // APB2 = 168MHz --> SPI5 = 21 MHz
+    p_hspi1->Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    p_hspi1->Init.TIMode            = SPI_TIMODE_DISABLE;
+    p_hspi1->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+    p_hspi1->Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+
+    retval = HAL_SPI_Init(p_hspi1);
+    Q_ASSERT(retval == HAL_OK);
+}
+//............................................................................
 void BSP_LED_On()
 {
     HAL_GPIO_WritePin(FW_LED_GPIO_Port, FW_LED_Pin, 1);
@@ -220,6 +278,35 @@ void BSP_debug_gpio_toggle()
 
 /**
  ***************************************************************************************************
+ * @brief   Functions for HV DPOT
+ **************************************************************************************************/
+
+static SPI_Return_T BSP_SPI_Write_HV_DPOT(
+    uint8_t *tx_buffer,
+    const uint16_t data_len,
+    SPI_Xfer_Complete_Callback complete_cb,
+    SPI_Xfer_Error_Callback error_cb,
+    void *cb_data)
+{
+    SPI_Device_T *p_device = &(spi_devices[SPI_DEVICE_HV_DPOT]);
+    return SPI_Bus_Write(
+        p_device->bus_id,
+        p_device->chip_select,
+        tx_buffer,
+        data_len,
+        p_device->params,
+        complete_cb,
+        error_cb,
+        cb_data);
+}
+
+SPI_Write BSP_Get_SPI_Write_HV_DPOT()
+{
+    return BSP_SPI_Write_HV_DPOT;
+}
+
+/**
+ ***************************************************************************************************
  * @brief   Functions for temp sensor
  **************************************************************************************************/
 
@@ -242,14 +329,20 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer)
  * @brief   Functions for sonar transmitter
  **************************************************************************************************/
 
-void BSP_Set_Transmitter_Power_Enable(bool en)
-{
-    // HAL_GPIO_WritePin(XDCR_PWR_EN_GPIO_Port, XDCR_PWR_EN_Pin, en);
-}
-
 void BSP_Begin_Sonar_Transceive()
 {
     TIM2->CNT = 0x00;
+}
+
+void BSP_HV_Enable()
+{
+    HAL_GPIO_WritePin(nHV_DISCHARGE_GPIO_Port, nHV_DISCHARGE_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(HV_EN_GPIO_Port, HV_EN_Pin, GPIO_PIN_SET);
+}
+void BSP_HV_Discharge()
+{
+    HAL_GPIO_WritePin(nHV_DISCHARGE_GPIO_Port, nHV_DISCHARGE_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(HV_EN_GPIO_Port, HV_EN_Pin, GPIO_PIN_RESET);
 }
 
 //............................................................................

@@ -6,6 +6,7 @@
 #include "interfaces/gpio.h"
 #include "pc_com.h"
 #include "posted_signals.h"
+#include "pubsub_signals.h"
 #include "qpc.h"
 #include "qsafe.h"
 #include "reset.h"
@@ -22,11 +23,11 @@
 // Command Functions
 static void on_cli_toggle_led(EmbeddedCli *cli, char *args, void *context);
 static void on_print_reset_reason(EmbeddedCli *cli, char *args, void *context);
-static void on_do_q_assert(EmbeddedCli *cli, char *args, void *context);
 static void on_fault(EmbeddedCli *cli, char *args, void *context);
 static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context);
-static void on_cli_transmitter_power(EmbeddedCli *cli, char *args, void *context);
-static void on_cli_transmitter_charge(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_hv_sense(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_hv_charge(EmbeddedCli *cli, char *args, void *context);
+static void on_cli_hv_discharge(EmbeddedCli *cli, char *args, void *context);
 static void on_cli_echo(EmbeddedCli *cli, char *args, void *context);
 
 static CliCommandBinding cli_cmd_list[] = {
@@ -36,38 +37,6 @@ static CliCommandBinding cli_cmd_list[] = {
         false,                            // flag whether to tokenize arguments
         NULL,                             // optional pointer to any application context
         on_cli_toggle_led                 // binding function
-    },
-
-    (CliCommandBinding) {
-        "temperature",              // command name (spaces are not allowed)
-        "read the temperature ADC", // Optional help for a command
-        true,                       // flag whether to tokenize arguments
-        NULL,                       // optional pointer to any application context
-        on_cli_temperature          // binding function
-    },
-
-    (CliCommandBinding) {
-        "transmitter-read",               // command name (spaces are not allowed)
-        "read the transmitter's voltage", // Optional help for a command
-        true,                             // flag whether to tokenize arguments
-        NULL,                             // optional pointer to any application context
-        on_cli_transmitter_power          // binding function
-    },
-
-    (CliCommandBinding) {
-        "transmitter-charge",                 // command name (spaces are not allowed)
-        "charge the transmitter's capacitor", // Optional help for a command
-        true,                                 // flag whether to tokenize arguments
-        NULL,                                 // optional pointer to any application context
-        on_cli_transmitter_charge             // binding function
-    },
-
-    (CliCommandBinding) {
-        "echo",               // command name (spaces are not allowed)
-        "activate the sonar", // Optional help for a command
-        true,                 // flag whether to tokenize arguments
-        NULL,                 // optional pointer to any application context
-        on_cli_echo           // binding function
     },
 
     (CliCommandBinding) {
@@ -86,13 +55,6 @@ static CliCommandBinding cli_cmd_list[] = {
         NULL,                          // optional pointer to any application context
         on_print_reset_reason          // binding function
     },
-    (CliCommandBinding) {
-        "assertNow",                                      // command name (spaces are not allowed)
-        "force a q_assert. Opt arg1: other reset reason", // Optional help for a command
-        true,                                             // flag whether to tokenize arguments
-        NULL,          // optional pointer to any application context
-        on_do_q_assert // binding function
-    },
 
     (CliCommandBinding) {
         "digital-out-set", // command name (spaces are not allowed)
@@ -110,6 +72,46 @@ static CliCommandBinding cli_cmd_list[] = {
         true,                  // flag whether to tokenize arguments
         NULL,                  // optional pointer to any application context
         on_cli_digital_in_read // binding function
+    },
+
+    (CliCommandBinding) {
+        "temperature",              // command name (spaces are not allowed)
+        "read the temperature ADC", // Optional help for a command
+        true,                       // flag whether to tokenize arguments
+        NULL,                       // optional pointer to any application context
+        on_cli_temperature          // binding function
+    },
+
+    (CliCommandBinding) {
+        "hv-sense",                          // command name (spaces are not allowed)
+        "measure the voltage of the HV bus", // Optional help for a command
+        true,                                // flag whether to tokenize arguments
+        NULL,                                // optional pointer to any application context
+        on_cli_hv_sense                      // binding function
+    },
+
+    (CliCommandBinding) {
+        "hv-charge",         // command name (spaces are not allowed)
+        "charge the HV bus", // Optional help for a command
+        true,                // flag whether to tokenize arguments
+        NULL,                // optional pointer to any application context
+        on_cli_hv_charge     // binding function
+    },
+
+    (CliCommandBinding) {
+        "hv-discharge",         // command name (spaces are not allowed)
+        "discharge the HV bus", // Optional help for a command
+        true,                   // flag whether to tokenize arguments
+        NULL,                   // optional pointer to any application context
+        on_cli_hv_discharge     // binding function
+    },
+
+    (CliCommandBinding) {
+        "echo",               // command name (spaces are not allowed)
+        "activate the sonar", // Optional help for a command
+        true,                 // flag whether to tokenize arguments
+        NULL,                 // optional pointer to any application context
+        on_cli_echo           // binding function
     },
 
 };
@@ -134,20 +136,49 @@ static void on_cli_toggle_led(EmbeddedCli *cli, char *args, void *context)
 static void on_cli_temperature(EmbeddedCli *cli, char *args, void *context)
 {
     QActive_subscribe(AO_PC_COM, PUBSUB_WATER_TEMP_SIG);
-    static QEvt const event = QEVT_INITIALIZER(PUBSUB_SAMPLE_TEMP_PWR_SIG);
-    QACTIVE_PUBLISH(&event, NULL);
 }
 
-static void on_cli_transmitter_power(EmbeddedCli *cli, char *args, void *context)
+static void on_cli_hv_sense(EmbeddedCli *cli, char *args, void *context)
 {
-    QActive_subscribe(AO_PC_COM, PUBSUB_XDCR_PWR_SIG);
-    static QEvt const event = QEVT_INITIALIZER(PUBSUB_SAMPLE_TEMP_PWR_SIG);
-    QACTIVE_PUBLISH(&event, NULL);
+    QActive_subscribe(AO_PC_COM, PUBSUB_HV_SENSE_SIG);
 }
 
-static void on_cli_transmitter_charge(EmbeddedCli *cli, char *args, void *context)
+#define HELP_FULL_CHARGE \
+    "\r\n\
+ Usage: hv-charge VOLTS\r\n\
+ \r\n\
+ VOLTS     Target voltage for high-voltage bus, Range 43 - 350\r\n\
+"
+static void on_cli_hv_charge(EmbeddedCli *cli, char *args, void *context)
 {
-    static QEvt const event = QEVT_INITIALIZER(PUBSUB_TRANSMITTER_CHARGE_SIG);
+    long arg_volts;
+    char *arg_end;
+
+    uint16_t num_args = embeddedCliGetTokenCount(args);
+    if (num_args != 1)
+    {
+        embeddedCliPrint(cli, HELP_FULL_CHARGE);
+        return;
+    }
+
+    const char *arg1 = embeddedCliGetToken(args, 1);
+    arg_volts        = strtol(arg1, &arg_end, 10);
+    if (arg_volts < 43 || arg_volts > 350)
+    {
+        embeddedCliPrint(cli, "\r\n VOLTAGE must be in range 43 - 350\r\n");
+        embeddedCliPrint(cli, HELP_FULL_CHARGE);
+        return;
+    }
+
+    ChargeHighVoltageEvent_T *HVChargeEvent = Q_NEW(ChargeHighVoltageEvent_T, PUBSUB_HV_CHARGE_SIG);
+    HVChargeEvent->target_volts             = (uint16_t) arg_volts;
+
+    QACTIVE_PUBLISH(&HVChargeEvent->super, NULL);
+}
+
+static void on_cli_hv_discharge(EmbeddedCli *cli, char *args, void *context)
+{
+    static QEvt const event = QEVT_INITIALIZER(PUBSUB_HV_DISCHARGE_SIG);
     QACTIVE_PUBLISH(&event, NULL);
 }
 
@@ -162,22 +193,6 @@ static void on_print_reset_reason(EmbeddedCli *cli, char *args, void *context)
     char buffer[90];
     snprintf_reset_reason(buffer, 90, "\r\n");
     embeddedCliPrint(cli, buffer);
-}
-static void on_do_q_assert(EmbeddedCli *cli, char *args, void *context)
-{
-    Q_UNUSED_PAR(cli);
-    Q_UNUSED_PAR(context);
-    Reset_Reason_T reason = RESET_REASON_Q_ASSERT;
-    uint16_t argCount     = embeddedCliGetTokenCount(args);
-    if (argCount > 0)
-    {
-        const char *arg1 = embeddedCliGetToken(args, 1);
-        reason           = strtoul(arg1, NULL, 10);
-    }
-
-    DebugForceFaultEvent_T *e = Q_NEW(DebugForceFaultEvent_T, POSTED_FORCE_FAULT_SIG);
-    e->desiredFault           = reason;
-    QACTIVE_POST(AO_PC_COM, &e->super, NULL);
 }
 
 static void on_fault(EmbeddedCli *cli, char *args, void *context)

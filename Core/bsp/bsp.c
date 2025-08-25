@@ -225,7 +225,10 @@ void BSP_Init(void)
     Q_ASSERT(retval == HAL_OK);
     retval = HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
     Q_ASSERT(retval == HAL_OK);
-    __HAL_TIM_ENABLE_IT(&htim15, TIM_IT_UPDATE);
+
+    // TIM15 CH2 used to shut down both half bridge outputs to put transmitter into high-z
+    HAL_TIM_OC_Start_IT(&htim15, TIM_CHANNEL_2);
+    // __HAL_TIM_ENABLE_IT(&htim15, TIM_IT_CC2);
 }
 //............................................................................
 static void SPI_Init()
@@ -334,8 +337,9 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer)
 
 void BSP_Begin_Sonar_Transceive()
 {
-    TIM8->CCER &= ~TIM_CCER_CC1P;  // invert CH1N to 0
-    TIM15->CCER &= ~TIM_CCER_CC1P; // invert CH1N
+    HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn); // just in case
+    TIM8->CCER &= ~TIM_CCER_CC1P;             // invert CH1N to 0
+    TIM15->CCER &= ~TIM_CCER_CC1P;            // invert CH1N
     TIM2->CNT = 0x00;
 }
 

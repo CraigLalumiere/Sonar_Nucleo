@@ -25,10 +25,13 @@ inline void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
         static QEvt const event = QEVT_INITIALIZER(PUBSUB_RECEIVE_COMPLETE_SIG);
         QACTIVE_PUBLISH(&event, NULL);
     }
-    if (htim->Instance == htim15.Instance)
+    if (htim->Instance == TIM15 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+    // if (htim->Instance == htim15.Instance)
     {
         i++;
-        // uint32_t cnt = htim15.Instance->CNT;
+        HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
+        TIM8->CCER |= TIM_CCER_CC1P; // invert CH1
+        // TIM15->CCER |= TIM_CCER_CC1P; // invert CH1N
     }
 }
 
@@ -51,8 +54,8 @@ inline void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == htim15.Instance)
     {
         i++;
-        TIM8->CCER |= TIM_CCER_CC1P;  // invert CH1
-        TIM15->CCER |= TIM_CCER_CC1P; // invert CH1N
-        HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
+        // TIM8->CCER |= TIM_CCER_CC1P;  // invert CH1
+        // TIM15->CCER |= TIM_CCER_CC1P; // invert CH1N
+        // HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
     }
 }

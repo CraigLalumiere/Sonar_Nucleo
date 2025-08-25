@@ -224,12 +224,12 @@ void ADC1_2_IRQHandler(void)
 void TIM1_BRK_TIM15_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
-
+    QK_ISR_ENTRY();
     /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
     HAL_TIM_IRQHandler(&htim1);
     HAL_TIM_IRQHandler(&htim15);
     /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
-
+    QK_ISR_EXIT();
     /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
 }
 
@@ -268,11 +268,11 @@ void SPI1_IRQHandler(void)
 void TIM8_UP_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM8_UP_IRQn 0 */
-
+    QK_ISR_ENTRY();
     /* USER CODE END TIM8_UP_IRQn 0 */
     HAL_TIM_IRQHandler(&htim8);
     /* USER CODE BEGIN TIM8_UP_IRQn 1 */
-
+    QK_ISR_EXIT();
     /* USER CODE END TIM8_UP_IRQn 1 */
 }
 

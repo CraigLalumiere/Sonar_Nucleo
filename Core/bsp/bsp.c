@@ -218,11 +218,14 @@ void BSP_Init(void)
     retval = HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     Q_ASSERT(retval == HAL_OK);
 
+    __HAL_TIM_ENABLE_IT(&htim8, TIM_IT_UPDATE);
+
     // TIM15 CH1/CH1n is half bridge 2
     retval = HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
     Q_ASSERT(retval == HAL_OK);
     retval = HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
     Q_ASSERT(retval == HAL_OK);
+    __HAL_TIM_ENABLE_IT(&htim15, TIM_IT_UPDATE);
 }
 //............................................................................
 static void SPI_Init()
@@ -331,6 +334,8 @@ void BSP_Temp_Pwr_ADC_Begin_Conversion(uint16_t *dma_buffer)
 
 void BSP_Begin_Sonar_Transceive()
 {
+    TIM8->CCER &= ~TIM_CCER_CC1P;  // invert CH1N to 0
+    TIM15->CCER &= ~TIM_CCER_CC1P; // invert CH1N
     TIM2->CNT = 0x00;
 }
 

@@ -807,7 +807,8 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.Pulse = 10;
+    sConfigOC.OCMode = TIM_OCMODE_PWM2;
+    sConfigOC.Pulse  = 10;
     if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();

@@ -20,7 +20,8 @@ NOTE: scripts use BATCH files, **do not use powershell!**
 
 ```commandline
 python -m venv .venv
-.venv\Scripts\activate.bat pip install -r requirements.txt
+.venv\Scripts\activate.bat
+pip install -r requirements.txt
 ```
 
 ## Running

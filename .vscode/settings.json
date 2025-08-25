@@ -39,4 +39,5 @@
     },
 
     "extensions.ignoreRecommendations": true,
+    "python-envs.pythonProjects": [],
 }

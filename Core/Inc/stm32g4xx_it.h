@@ -54,10 +54,9 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void DMA1_Channel2_IRQHandler(void);
 void ADC1_2_IRQHandler(void);
-void TIM1_BRK_TIM15_IRQHandler(void);
 void TIM2_IRQHandler(void);
+void TIM3_IRQHandler(void);
 void SPI1_IRQHandler(void);
-void TIM8_UP_IRQHandler(void);
 void LPUART1_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 

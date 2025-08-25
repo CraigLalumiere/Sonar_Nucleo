@@ -64,10 +64,8 @@ extern ADC_HandleTypeDef hadc2;
 extern UART_HandleTypeDef hlpuart1;
 extern DMA_HandleTypeDef hdma_spi1_tx;
 extern SPI_HandleTypeDef hspi1;
-extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim8;
-extern TIM_HandleTypeDef htim15;
+extern TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -219,21 +217,6 @@ void ADC1_2_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM1 break interrupt and TIM15 global interrupt.
- */
-void TIM1_BRK_TIM15_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
-    QK_ISR_ENTRY();
-    /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim1);
-    HAL_TIM_IRQHandler(&htim15);
-    /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
-    QK_ISR_EXIT();
-    /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
-}
-
-/**
  * @brief This function handles TIM2 global interrupt.
  */
 void TIM2_IRQHandler(void)
@@ -245,6 +228,20 @@ void TIM2_IRQHandler(void)
     /* USER CODE BEGIN TIM2_IRQn 1 */
 
     /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM3 global interrupt.
+ */
+void TIM3_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM3_IRQn 0 */
+    QK_ISR_ENTRY();
+    /* USER CODE END TIM3_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim3);
+    /* USER CODE BEGIN TIM3_IRQn 1 */
+    QK_ISR_EXIT();
+    /* USER CODE END TIM3_IRQn 1 */
 }
 
 /**
@@ -260,20 +257,6 @@ void SPI1_IRQHandler(void)
     /* USER CODE BEGIN SPI1_IRQn 1 */
 
     /* USER CODE END SPI1_IRQn 1 */
-}
-
-/**
- * @brief This function handles TIM8 update interrupt.
- */
-void TIM8_UP_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM8_UP_IRQn 0 */
-    QK_ISR_ENTRY();
-    /* USER CODE END TIM8_UP_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim8);
-    /* USER CODE BEGIN TIM8_UP_IRQn 1 */
-    QK_ISR_EXIT();
-    /* USER CODE END TIM8_UP_IRQn 1 */
 }
 
 /**

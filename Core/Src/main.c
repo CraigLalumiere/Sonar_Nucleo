@@ -107,6 +107,7 @@ DMA_HandleTypeDef hdma_spi1_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim15;
 
@@ -128,6 +129,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_OPAMP3_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -180,6 +182,7 @@ int main(void)
     MX_TIM15_Init();
     MX_OPAMP3_Init();
     MX_SPI1_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
 
     uint16_t priority = QF_AWARE_ISR_CMSIS_PRI;
@@ -740,6 +743,74 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_SlaveConfigTypeDef sSlaveConfig       = {0};
+    TIM_MasterConfigTypeDef sMasterConfig     = {0};
+    TIM_OC_InitTypeDef sConfigOC              = {0};
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance               = TIM3;
+    htim3.Init.Prescaler         = 108;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.Period            = 30;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_OnePulse_Init(&htim3, TIM_OPMODE_SINGLE) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sSlaveConfig.SlaveMode    = TIM_SLAVEMODE_COMBINED_RESETTRIGGER;
+    sSlaveConfig.InputTrigger = TIM_TS_ITR5;
+    if (HAL_TIM_SlaveConfigSynchro(&htim3, &sSlaveConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_PWM2;
+    sConfigOC.Pulse      = 25;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
+    HAL_TIM_MspPostInit(&htim3);
+}
+
+/**
  * @brief TIM8 Initialization Function
  * @param None
  * @retval None
@@ -753,6 +824,7 @@ static void MX_TIM8_Init(void)
     TIM_ClockConfigTypeDef sClockSourceConfig           = {0};
     TIM_SlaveConfigTypeDef sSlaveConfig                 = {0};
     TIM_MasterConfigTypeDef sMasterConfig               = {0};
+    TIMEx_BreakInputConfigTypeDef sBreakInputConfig     = {0};
     TIM_OC_InitTypeDef sConfigOC                        = {0};
     TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
@@ -796,6 +868,13 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
+    sBreakInputConfig.Source   = TIM_BREAKINPUTSOURCE_BKIN;
+    sBreakInputConfig.Enable   = TIM_BREAKINPUTSOURCE_ENABLE;
+    sBreakInputConfig.Polarity = TIM_BREAKINPUTSOURCE_POLARITY_HIGH;
+    if (HAL_TIMEx_ConfigBreakInput(&htim8, TIM_BREAKINPUT_BRK, &sBreakInputConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
     sConfigOC.OCMode       = TIM_OCMODE_PWM1;
     sConfigOC.Pulse        = 15;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
@@ -817,7 +896,7 @@ static void MX_TIM8_Init(void)
     sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
     sBreakDeadTimeConfig.LockLevel        = TIM_LOCKLEVEL_OFF;
     sBreakDeadTimeConfig.DeadTime         = 50;
-    sBreakDeadTimeConfig.BreakState       = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakState       = TIM_BREAK_ENABLE;
     sBreakDeadTimeConfig.BreakPolarity    = TIM_BREAKPOLARITY_HIGH;
     sBreakDeadTimeConfig.BreakFilter      = 0;
     sBreakDeadTimeConfig.BreakAFMode      = TIM_BREAK_AFMODE_INPUT;
@@ -850,6 +929,7 @@ static void MX_TIM15_Init(void)
     TIM_ClockConfigTypeDef sClockSourceConfig           = {0};
     TIM_SlaveConfigTypeDef sSlaveConfig                 = {0};
     TIM_MasterConfigTypeDef sMasterConfig               = {0};
+    TIMEx_BreakInputConfigTypeDef sBreakInputConfig     = {0};
     TIM_OC_InitTypeDef sConfigOC                        = {0};
     TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
@@ -892,6 +972,13 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
+    sBreakInputConfig.Source   = TIM_BREAKINPUTSOURCE_BKIN;
+    sBreakInputConfig.Enable   = TIM_BREAKINPUTSOURCE_ENABLE;
+    sBreakInputConfig.Polarity = TIM_BREAKINPUTSOURCE_POLARITY_HIGH;
+    if (HAL_TIMEx_ConfigBreakInput(&htim15, TIM_BREAKINPUT_BRK, &sBreakInputConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
     sConfigOC.OCMode       = TIM_OCMODE_PWM1;
     sConfigOC.Pulse        = 15;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
@@ -903,17 +990,11 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode = TIM_OCMODE_PWM2;
-    sConfigOC.Pulse  = 10;
-    if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-    {
-        Error_Handler();
-    }
     sBreakDeadTimeConfig.OffStateRunMode  = TIM_OSSR_DISABLE;
     sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
     sBreakDeadTimeConfig.LockLevel        = TIM_LOCKLEVEL_OFF;
     sBreakDeadTimeConfig.DeadTime         = 50;
-    sBreakDeadTimeConfig.BreakState       = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakState       = TIM_BREAK_ENABLE;
     sBreakDeadTimeConfig.BreakPolarity    = TIM_BREAKPOLARITY_HIGH;
     sBreakDeadTimeConfig.BreakFilter      = 0;
     sBreakDeadTimeConfig.AutomaticOutput  = TIM_AUTOMATICOUTPUT_DISABLE;
@@ -957,6 +1038,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, GainSel0_Pin | GainSel1_Pin | GainSel2_Pin, GPIO_PIN_RESET);

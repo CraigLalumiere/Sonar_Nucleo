@@ -939,7 +939,7 @@ static void MX_TIM15_Init(void)
     htim15.Instance               = TIM15;
     htim15.Init.Prescaler         = 108;
     htim15.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim15.Init.Period            = 65535;
+    htim15.Init.Period            = 19;
     htim15.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim15.Init.RepetitionCounter = 0;
     htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -987,6 +987,11 @@ static void MX_TIM15_Init(void)
     sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
     if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.Pulse = 0;
+    if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
     }
@@ -1038,7 +1043,6 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, GainSel0_Pin | GainSel1_Pin | GainSel2_Pin, GPIO_PIN_RESET);

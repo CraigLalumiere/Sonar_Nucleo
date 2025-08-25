@@ -630,16 +630,16 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* Peripheral clock enable */
         __HAL_RCC_TIM8_CLK_ENABLE();
 
-        __HAL_RCC_GPIOD_CLK_ENABLE();
+        __HAL_RCC_GPIOB_CLK_ENABLE();
         /**TIM8 GPIO Configuration
-        PD2     ------> TIM8_BKIN
+        PB7     ------> TIM8_BKIN
         */
-        GPIO_InitStruct.Pin       = GPIO_PIN_2;
+        GPIO_InitStruct.Pin       = GPIO_PIN_7;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF4_TIM8;
-        HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+        GPIO_InitStruct.Alternate = GPIO_AF5_TIM8;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* USER CODE BEGIN TIM8_MspInit 1 */
 
@@ -831,14 +831,12 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
 
         /**TIM8 GPIO Configuration
         PA7     ------> TIM8_CH1N
-        PD2     ------> TIM8_BKIN
         PB6     ------> TIM8_CH1
+        PB7     ------> TIM8_BKIN
         */
         HAL_GPIO_DeInit(PWM_A_H_GPIO_Port, PWM_A_H_Pin);
 
-        HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
-
-        HAL_GPIO_DeInit(PWM_A_L_GPIO_Port, PWM_A_L_Pin);
+        HAL_GPIO_DeInit(GPIOB, PWM_A_L_Pin | GPIO_PIN_7);
 
         /* USER CODE BEGIN TIM8_MspDeInit 1 */
 

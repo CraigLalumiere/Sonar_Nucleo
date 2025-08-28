@@ -341,7 +341,9 @@ void BSP_Begin_Sonar_Transceive()
     HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn); // just in case
     // TIM8->CCER &= ~TIM_CCER_CC1P;             // invert CH1N to 0
     // TIM15->CCER &= ~TIM_CCER_CC1P;            // invert CH1N
+    __HAL_TIM_CLEAR_FLAG(&htim8, TIM_FLAG_BREAK);
     __HAL_TIM_CLEAR_FLAG(&htim15, TIM_FLAG_BREAK);
+    __HAL_TIM_MOE_ENABLE(&htim8);
     __HAL_TIM_MOE_ENABLE(&htim15);
     TIM2->CNT = 0x00;
 }
